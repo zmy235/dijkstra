@@ -1,81 +1,91 @@
-/*
-*Dijkstra 纯手写
-*
-*2017-4-9 调试完成
-*
-*By veizi
-*/
 #include <bits/stdc++.h>
-#define INF 0x0FFFFFFF
 using namespace std;
+#define SIZE 9
+#define INF 0x0FFFFFFF
 
-int w[6][6]=
-{
-    0,2,INF,4,INF,INF,
-    2,0,8,INF,1,INF,
-    INF,8,0,4,3,8,
-    4,INF,4,0,5,INF,
-    INF,1,3,5,0,10,
-    INF,INF,8,INF,10,0
-};
+int main(){
 
-int main()
-{
-    int start;
-    cin>>start;
-    bool know[6]= {false}; //判断是否可以确定该点的Path
-    int cost[6]= {INF,INF,INF,INF,INF,INF}; //起点到该点的费用
-    int path[6]= {-1}; //当前点的前一个出发点
-    know[start]=true;
-    cost[start]=0;
-    path[start]=-1;
-
-    for(int i=0; i<6; i++)
+    int w[SIZE][SIZE];
+    for(int i=0;i<SIZE;i++)
     {
-        cost[i] = w[start][i];
-        if(i!=start && cost[i]!=INF)
-            path[i] = start;
-    }
-
-    int min_node=start;//当前未访问节点中最近的节点
-
-    int unknown=4;//还不能确定路径的节点个数
-    while(unknown>0)
-    {
-        int min_cost=INF;//从起点到达 当前未访问最近点 的消耗
-        for(int j = 0; j < 6; j++)
+        for(int j=i;j<SIZE;j++)
         {
-            if( !know[j] && (cost[j]<min_cost) )
+            if(i==j) w[i][j]=0;
+            else
             {
-                min_cost = cost[j];
-                min_node = j;
-            }
-        }
-
-        know[min_node] = true;//标记 查找到的最近点k 为可以确定路径
-        unknown--;
-
-        for(int j = 0; j < 6; j++)
-        {
-            if(!know[j] && min_cost+w[min_node][j] < cost[j])
-            {
-                cost[j] = min_cost+w[min_node][j];
-                path[j] = min_node;
+                int t=rand()%50;
+                w[i][j]=(t>10) ? INF:t;
+                w[j][i]=w[i][j];
             }
         }
     }
 
-    //Path print out
-    for(int i=0; i<6; i++)
+    for(int i=0;i<SIZE;i++)
     {
-        int temp=i;
-        cout<<"path: "<<temp;
-        while(temp!=start)
+        for(int j=0;j<SIZE;j++)
         {
-            cout<<" "<<path[temp];
-            temp=path[temp];
+            cout<<(w[i][j]==INF ? -1:w[i][j])<<"\t";
         }
-        cout<<"\t\tcost: "<<cost[i]<<endl;
+        cout<<endl;
+    }
+    while(true){
+        int start;
+        cin>>start;
+
+        bool know[SIZE];
+        int cost[SIZE];
+        int path[SIZE];
+
+        for(int i=0;i<SIZE;i++)
+        {
+            know[i]=false;
+            cost[i]=w[start][i];
+            path[i]=(w[start][i]==INF) ? start : -1;
+        }
+
+        know[start]=true;
+        path[start]=-1;
+
+        int min_node=start;
+        for(int j=SIZE;j>=1;j--)
+        {
+            int min_cost=INF;
+            for(int i=0;i<SIZE;i++)
+            {
+                if(!know[i] && min_cost>cost[i])
+                {
+                    min_cost=cost[i];
+                    min_node=i;
+                }
+            }
+
+            know[min_node]=true;
+
+            for(int i=0;i<SIZE;i++)
+            {
+                if(!know[i] && min_cost+w[min_node][i]<cost[i])
+                {
+                    cost[i]=min_cost+w[min_node][i];
+                    path[i]=min_node;
+                }
+            }
+        }
+
+        for(int i=0;i<SIZE;i++)
+        {
+            if(cost[i]>=INF) cout<<i<<": "<<"Can not touch."<<endl;
+            else
+            {
+                cout<<i<<": "<<i<<" ";
+                int t=i;
+                while(path[t]!=-1)
+                {
+                    t=path[t];
+                    cout<<t<<" ";
+                }
+                cout<<start<<"\t\tcost: "<<cost[i]<<endl;
+            }
+        }
     }
     return 0;
 }
